@@ -1,0 +1,24 @@
+Formato dos Arquivos
+
+primeira linha ==> n C (número de objetos e Capacidade dos bins - caixas)
+
+Pi = peso do objeto-i (para i variando de 1 a n)
+
+Exemplo
+=================
+4 500
+111 222 333
+444
+=================
+
+Corresponde a n=4 itens e Capacidade de cada bin C=500.
+Pesos dos objetos:
+p1= 111
+p2= 222
+p3= 333
+p4= 444
+
+Obs.: pi não pode ser maior que C
+
+Objetivo do Problema, minimizar o número de BINS para 
+carga/empacotamento de TODOS os objetos.
