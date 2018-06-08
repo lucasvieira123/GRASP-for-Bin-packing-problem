@@ -2,6 +2,9 @@ package Controller;
 
 import Model.Bin;
 import Model.Item;
+import custom.BestFitInserction;
+import custom.FirstFitInserction;
+import custom.InserctionStrategy;
 import custom.SortHelp;
 
 import java.util.ArrayList;
@@ -21,7 +24,8 @@ public class GRASP {
     private int numberOfGreedy;
     private int numberOfRamdom;
     private int numberExecution;
-    private int order;
+    private int orderStyle;
+    private int inserctionType;
 
 
     public List<Bin> getBestBinsList() {
@@ -82,8 +86,8 @@ public class GRASP {
         return numberItem;
     }
 
-    public GRASP setOrder(int order) {
-        this.order = order;
+    public GRASP setOrderType(int order) {
+        this.orderStyle = order;
         return this;
     }
 
@@ -107,7 +111,7 @@ public class GRASP {
 
     private void chunkGreedy(List<Item> greedyList) {
 
-        SortHelp sortHelp = new SortHelp(order, greedyList);
+        SortHelp sortHelp = new SortHelp(orderStyle, greedyList);
         List<Item> greedyListOrdened = sortHelp.getOrdenedList();
 
         addItems(greedyListOrdened);
@@ -118,58 +122,28 @@ public class GRASP {
         addItems(randomList);
     }
 
-    private void addItems(List<Item> list) {
-        Integer answerAboutOperationAdd;
+    private void addItems(List<Item> itemList) {
 
-        for(Item currentItem : list){
+        InserctionStrategy inserctionStrategy = null;
 
-            if(bins.size() == 0){
-                buildBin();
-            }
-
-            for(Bin currentBin : bins){
-                answerAboutOperationAdd = currentBin.tryAddItem(currentItem);
-
-                if(answerAboutOperationAdd == Bin.ITEM_ADDED){
-                    break; // pass to next item
-                }
-
-                if (answerAboutOperationAdd == Bin.WEIGHT_ITEM_PASS_REST_CAPACITY){
-                    continue;
-                }
-
-                if(answerAboutOperationAdd == Bin.WEIGHT_ITEM_PASS_INITIAL_CAPACITY){
-                    System.out.println("item with weight above the capacity of the backpack!");
-                    System.exit(0);
-                }
-            }
-
-            if(!currentItem.isWasAdd()){
-                Bin currentBinTmp = buildBin();
-                answerAboutOperationAdd = currentBinTmp.tryAddItem(currentItem);
-
-                if(answerAboutOperationAdd != Bin.ITEM_ADDED){
-                    System.out.println("ANALISAR ESSE CASO QUE DÁ PROBLEMA!!!");
-                    System.exit(0);
-                }else {
-                    continue; // pass to next item
-                }
-            }
+        // improve this \/
+        if(inserctionType == InserctionStrategy.FIRST_FIT){
+            inserctionStrategy = new FirstFitInserction(bins,itemList,capacityBin);
+        }else if(inserctionType == InserctionStrategy.BEST_FIT){
+            inserctionStrategy = new BestFitInserction(bins,itemList,capacityBin);
         }
+
+        inserctionStrategy.execute();
+
     }
-
-
-
-
-    private Bin buildBin() {
-        Bin bin = new Bin(capacityBin);
-        bins.add(bin);
-        return bin;
-    }
-
 
     public GRASP setNumberExecution(int numberExecution) {
         this.numberExecution = numberExecution;
+        return this;
+    }
+
+    public GRASP setInserctionType(int inserctionType) {
+        this.inserctionType = inserctionType;
         return this;
     }
 }

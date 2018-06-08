@@ -67,4 +67,8 @@ public class Bin {
 
         }
     }
+
+    static public void restart_Id(){
+        _id = 0;
+    }
 }

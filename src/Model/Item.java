@@ -34,4 +34,8 @@ public class Item {
     public void setWasAdd(boolean wasAdd) {
         this.wasAdd = wasAdd;
     }
+
+    static public void restart_Id(){
+        _id = 0;
+    }
 }

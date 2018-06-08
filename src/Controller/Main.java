@@ -4,13 +4,12 @@ import Model.Bin;
 import Model.Item;
 import custom.*;
 import javafx.application.Application;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.RadioButton;
-import javafx.scene.control.TextArea;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
@@ -47,6 +46,12 @@ public class Main extends Application {
     private RadioButton descrescentSortRadioBt;
     @FXML
     private RadioButton noneSortRadioBt;
+    @FXML
+    private RadioButton randomSortRadioBt;
+    @FXML
+    private RadioButton firstFitSortRadioBt;
+    @FXML
+    private RadioButton bestFitSortRadioBt;
 
     @FXML
     private TextField numberExecutionTxtField;
@@ -54,8 +59,15 @@ public class Main extends Application {
     @FXML
     private TextArea answerTextArea;
 
-    private int sort = SortHelp.NONE_ORDER;
+    ToggleGroup insertionCriterionToggleGruop = new ToggleGroup();
 
+    ToggleGroup orderToggleGruop = new ToggleGroup();
+
+
+
+
+    private int selectedInsertionStyle = InserctionStrategy.BEST_FIT;
+    private int selectedOrderStyle = SortHelp.NONE_ORDER;
 
 
     FileChooser fileChooser = new FileChooser();
@@ -64,7 +76,7 @@ public class Main extends Application {
     private List<Item> items;
     private Float alfa;
     private int executionNumber;
-    private String valueDefaulAlfa = "1.0";
+    private String valueDefaultAlfa = "1.0";
     private String valueDefaultNumberExecution = "1";
 
     public void start(Stage primaryStage) throws Exception {
@@ -100,27 +112,31 @@ public class Main extends Application {
     @FXML
     private void initialize() {
 
+        configureInsertionCriterionAndOrderRadioButtons();
+
         chooseBtn.setOnAction(event -> showChooserAndSetPathAction());
 
-        alfaTxtField.setOnMouseClicked(event -> alfaTxtField.setText(""));
-
-        coordinateEventSelectRadioButton(); // improve this method (desing Pattern)
-
-        numberExecutionTxtField.setOnMouseClicked(event->numberExecutionTxtField.setText(""));
+        alfaTxtField.setOnMouseClicked(clearField(alfaTxtField));
+        numberExecutionTxtField.setOnMouseClicked(clearField(numberExecutionTxtField));
         
         startBtn.setOnAction(event -> {
+
+            Bin.restart_Id();
+            Item.restart_Id();
+
             if(alfa == null || alfaTxtField.getText().isEmpty()){
-                alfaTxtField.setText(valueDefaulAlfa);
+                alfaTxtField.setText(valueDefaultAlfa);
             }
 
             alfa = Float.valueOf(alfaTxtField.getText());
+
 
             if(numberExecutionTxtField.getText().isEmpty()){
                 numberExecutionTxtField.setText(valueDefaultNumberExecution);
             }
 
             float executionNumberInFloat = Float.valueOf(numberExecutionTxtField.getText());
-            executionNumber = Math.abs((int)executionNumberInFloat);
+            executionNumber = buildNatureValue(executionNumberInFloat);
             numberExecutionTxtField.setText(String.valueOf(executionNumber));
 
             // restrictions to fields
@@ -137,9 +153,6 @@ public class Main extends Application {
             readFile();
 
             int numberItem = readerFile.getNumberOfItems();
-
-            alfa = Float.valueOf(alfaTxtField.getText());
-
             int numberOfGreedy = (int)Math.ceil(numberItem * alfa);
             int numberOfRamdom = numberItem - numberOfGreedy;
 
@@ -148,13 +161,47 @@ public class Main extends Application {
 
             startGrasp();
 
-
-            
-           
         });
 
 
 
+
+    }
+
+    private int buildNatureValue(float floatNumber) {
+        return Math.abs((int)floatNumber);
+    }
+
+    private EventHandler<? super MouseEvent> clearField(TextField textField) {
+        return event -> textField.setText("");
+    }
+
+    private void configureInsertionCriterionAndOrderRadioButtons() {
+        firstFitSortRadioBt.setToggleGroup(insertionCriterionToggleGruop);
+        firstFitSortRadioBt.setUserData(InserctionStrategy.FIRST_FIT);
+
+        bestFitSortRadioBt.setToggleGroup(insertionCriterionToggleGruop);
+        bestFitSortRadioBt.setUserData(InserctionStrategy.BEST_FIT);
+
+        crescentSortRadioBt.setToggleGroup(orderToggleGruop);
+        crescentSortRadioBt.setUserData(SortHelp.CRESCENT_ODER);
+
+        descrescentSortRadioBt.setToggleGroup(orderToggleGruop);
+        descrescentSortRadioBt.setUserData(SortHelp.DESCRESCENT_ORDER);
+
+        randomSortRadioBt.setToggleGroup(orderToggleGruop);
+        randomSortRadioBt.setUserData(SortHelp.RANDOM_ORDER);
+
+        noneSortRadioBt.setToggleGroup(orderToggleGruop);
+        noneSortRadioBt.setUserData(SortHelp.NONE_ORDER);
+
+        insertionCriterionToggleGruop.selectedToggleProperty()
+                .addListener((observable, oldValue, newValue)
+                        -> selectedInsertionStyle = (int) newValue.getUserData());
+
+       orderToggleGruop.selectedToggleProperty()
+               .addListener((observable, oldValue, newValue)
+                       -> selectedOrderStyle = (int) newValue.getUserData());
 
     }
 
@@ -167,43 +214,26 @@ public class Main extends Application {
        return fileChooser.showOpenDialog(primaryStage);
     }
 
-    private void coordinateEventSelectRadioButton() {
-        crescentSortRadioBt.setOnAction(event -> {
-            sort = SortHelp.CRESCENT_ODER;
-            crescentSortRadioBt.setSelected(true);
-            descrescentSortRadioBt.setSelected(false);
-            noneSortRadioBt.setSelected(false);
-        });
 
-
-        descrescentSortRadioBt.setOnAction(event -> {
-            sort = SortHelp.DESCRESCENT_ODER;
-            descrescentSortRadioBt.setSelected(true);
-            crescentSortRadioBt.setSelected(false);
-            noneSortRadioBt.setSelected(false);
-        });
-
-        noneSortRadioBt.setOnAction(event -> {
-            sort = SortHelp.NONE_ORDER;
-            noneSortRadioBt.setSelected(true);
-            descrescentSortRadioBt.setSelected(false);
-            crescentSortRadioBt.setSelected(false);
-        });
-
-    }
 
     private void startGrasp() {
         GRASP grasp = new GRASP();
+
         grasp.setNumberExecution(executionNumber)
-                .setOrder(sort).setCapacityBin(capacityBin)
-                .setItems(items).setAlfa(alfa).execute();
+                .setInserctionType(selectedInsertionStyle)
+                .setOrderType(selectedOrderStyle)
+                .setCapacityBin(capacityBin)
+                .setItems(items)
+                .setAlfa(alfa)
+                .execute();
+
         String answer = strutureAnswer(grasp.getBestBinsList());
 
         answerTextArea.setText(answer);
     }
 
     private String strutureAnswer(List<Bin> bestBinsList) {
-        String struturedAnswer = "Count Bins: "+bestBinsList.size()+ "\n";
+        String struturedAnswer = "Count Bins: "+bestBinsList.size()+ "\n\n";
 
         for(Bin bin : bestBinsList){
             struturedAnswer = struturedAnswer.concat("[Bin-"+bin.getId()+" Fill_Capacity="
