@@ -67,7 +67,7 @@ public class Main extends Application {
 
 
     private int selectedInsertionStyle = InserctionStrategy.BEST_FIT;
-    private int selectedOrderStyle = SortHelp.NONE_ORDER;
+    private int selectedSortStyle = SortHelp.NONE_ORDER;
 
 
     FileChooser fileChooser = new FileChooser();
@@ -201,7 +201,7 @@ public class Main extends Application {
 
        orderToggleGruop.selectedToggleProperty()
                .addListener((observable, oldValue, newValue)
-                       -> selectedOrderStyle = (int) newValue.getUserData());
+                       -> selectedSortStyle = (int) newValue.getUserData());
 
     }
 
@@ -221,7 +221,7 @@ public class Main extends Application {
 
         grasp.setNumberExecution(executionNumber)
                 .setInserctionType(selectedInsertionStyle)
-                .setOrderType(selectedOrderStyle)
+                .setOrderType(selectedSortStyle)
                 .setCapacityBin(capacityBin)
                 .setItems(items)
                 .setAlfa(alfa)
@@ -237,7 +237,7 @@ public class Main extends Application {
 
         for(Bin bin : bestBinsList){
             struturedAnswer = struturedAnswer.concat("[Bin-"+bin.getId()+" Fill_Capacity="
-                    +bin.getFilledCapacity()+" Rest_Fill_Capacity="+bin.getRestCapacity()+"]\n");
+                    +bin.getFilledCapacity()+" Rest_Capacity="+bin.getRestCapacity()+"]\n");
 
             for(Item item : bin.getItems()){
                 struturedAnswer = struturedAnswer.concat(item.getWeight().toString()+"  ");
