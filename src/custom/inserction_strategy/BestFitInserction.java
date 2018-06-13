@@ -1,11 +1,13 @@
-package custom;
+package custom.inserction_strategy;
 
-import Model.Bin;
-import Model.Item;
+import custom.utils.Trace;
+import model.Bin;
+import model.Item;
 
 import java.util.List;
 
 public class BestFitInserction extends InserctionStrategy {
+
 
     public BestFitInserction(List<Bin> bins, List<Item> items, float capacityBin) {
         super(bins, items, capacityBin);

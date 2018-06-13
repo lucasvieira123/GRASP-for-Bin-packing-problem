@@ -1,6 +1,6 @@
 package custom;
 
-import Model.Item;
+import model.Item;
 
 import java.io.BufferedReader;
 import java.io.File;

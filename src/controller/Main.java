@@ -1,8 +1,11 @@
-package Controller;
+package controller;
 
-import Model.Bin;
-import Model.Item;
+import model.Bin;
+import model.Item;
 import custom.*;
+import custom.inserction_strategy.InserctionStrategy;
+import custom.sort_strategy.SortHelp;
+import custom.utils.DesignerResponse;
 import javafx.application.Application;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
@@ -59,6 +62,14 @@ public class Main extends Application {
     @FXML
     private TextArea answerTextArea;
 
+    @FXML
+    private CheckBox automaticCheckBox;
+
+    @FXML
+    private Label insertionCriterionLabel;
+    @FXML
+    private Label sortTheGreedyLabel;
+
     ToggleGroup insertionCriterionToggleGruop = new ToggleGroup();
 
     ToggleGroup orderToggleGruop = new ToggleGroup();
@@ -66,8 +77,8 @@ public class Main extends Application {
 
 
 
-    private int selectedInsertionStyle = InserctionStrategy.BEST_FIT;
-    private int selectedSortStyle = SortHelp.NONE_ORDER;
+    private int selectedInsertionType = InserctionStrategy.BEST_FIT;
+    private int selectedSortType = SortHelp.NONE_ORDER;
 
 
     FileChooser fileChooser = new FileChooser();
@@ -96,7 +107,7 @@ public class Main extends Application {
 
     private void initRootLayout() {
         FXMLLoader loader = new FXMLLoader();
-        loader.setLocation(Main.class.getResource("/View/MainLayout.fxml"));
+        loader.setLocation(Main.class.getResource("/view/MainLayout.fxml"));
         try {
             mainLayout = loader.load();
         } catch (IOException e) {
@@ -113,22 +124,35 @@ public class Main extends Application {
     private void initialize() {
 
         configureInsertionCriterionAndOrderRadioButtons();
+        applyAutomaticConfiguration();
+
 
         chooseBtn.setOnAction(event -> showChooserAndSetPathAction());
 
         alfaTxtField.setOnMouseClicked(clearField(alfaTxtField));
         numberExecutionTxtField.setOnMouseClicked(clearField(numberExecutionTxtField));
+
+        automaticCheckBox.selectedProperty().addListener((observable, oldValue, newValue) -> {
+            if(automaticCheckBoxSelected(newValue)){
+                applyAutomaticConfiguration();
+
+            }else {
+                applyManualConfiguration();
+            }
+        });
         
         startBtn.setOnAction(event -> {
 
             Bin.restart_Id();
             Item.restart_Id();
 
+            alfa = Float.valueOf(alfaTxtField.getText());
+
             if(alfa == null || alfaTxtField.getText().isEmpty()){
                 alfaTxtField.setText(valueDefaultAlfa);
             }
 
-            alfa = Float.valueOf(alfaTxtField.getText());
+
 
 
             if(numberExecutionTxtField.getText().isEmpty()){
@@ -158,14 +182,50 @@ public class Main extends Application {
 
             greedyTxtField.setText(String.valueOf(numberOfGreedy));
             randomTxtField.setText(String.valueOf(numberOfRamdom));
+            boolean automaticGrasp = automaticCheckBox.isSelected();
 
-            startGrasp();
+
+            if(automaticGrasp){
+                startAutomaticGrasp();
+            }else {
+                startManualGrasp();
+            }
+
+
+
 
         });
 
 
 
 
+    }
+
+    private void applyManualConfiguration() {
+        crescentSortRadioBt.setDisable(false);
+        descrescentSortRadioBt.setDisable(false);
+        noneSortRadioBt.setDisable(false);
+        randomSortRadioBt.setDisable(false);
+        firstFitSortRadioBt.setDisable(false);
+        bestFitSortRadioBt.setDisable(false);
+        sortTheGreedyLabel.setDisable(false);
+        insertionCriterionLabel.setDisable(false);
+    }
+
+    private void applyAutomaticConfiguration() {
+        crescentSortRadioBt.setDisable(true);
+        descrescentSortRadioBt.setDisable(true);
+        noneSortRadioBt.setDisable(true);
+        randomSortRadioBt.setDisable(true);
+        firstFitSortRadioBt.setDisable(true);
+        bestFitSortRadioBt.setDisable(true);
+        sortTheGreedyLabel.setDisable(true);
+        insertionCriterionLabel.setDisable(true);
+    }
+
+
+    private boolean automaticCheckBoxSelected(Boolean newValue) {
+        return newValue;
     }
 
     private int buildNatureValue(float floatNumber) {
@@ -197,11 +257,11 @@ public class Main extends Application {
 
         insertionCriterionToggleGruop.selectedToggleProperty()
                 .addListener((observable, oldValue, newValue)
-                        -> selectedInsertionStyle = (int) newValue.getUserData());
+                        -> selectedInsertionType = (int) newValue.getUserData());
 
        orderToggleGruop.selectedToggleProperty()
                .addListener((observable, oldValue, newValue)
-                       -> selectedSortStyle = (int) newValue.getUserData());
+                       -> selectedSortType = (int) newValue.getUserData());
 
     }
 
@@ -216,39 +276,70 @@ public class Main extends Application {
 
 
 
-    private void startGrasp() {
+    private void startManualGrasp() {
         GRASP grasp = new GRASP();
 
         grasp.setNumberExecution(executionNumber)
-                .setInserctionType(selectedInsertionStyle)
-                .setOrderType(selectedSortStyle)
+                .setInserctionType(selectedInsertionType)
+                .setOrderType(selectedSortType)
                 .setCapacityBin(capacityBin)
                 .setItems(items)
                 .setAlfa(alfa)
-                .execute();
-
-        String answer = strutureAnswer(grasp.getBestBinsList());
+                .generateStartSolution();
+        String answer = DesignerResponse.strutureBinsInString(grasp.getBestStartSolutionBins());
 
         answerTextArea.setText(answer);
     }
 
-    private String strutureAnswer(List<Bin> bestBinsList) {
-        String struturedAnswer = "Count Bins: "+bestBinsList.size()+ "\n\n";
+    private void startAutomaticGrasp() {
+        //bad code because it is very coupled. I must use reflection
+        List<Integer> inserctionStrategysTypes = new ArrayList<>(2);
+        inserctionStrategysTypes.add(InserctionStrategy.FIRST_FIT);
+        inserctionStrategysTypes.add(InserctionStrategy.BEST_FIT);
 
-        for(Bin bin : bestBinsList){
-            struturedAnswer = struturedAnswer.concat("[Bin-"+bin.getId()+" Fill_Capacity="
-                    +bin.getFilledCapacity()+" Rest_Capacity="+bin.getRestCapacity()+"]\n");
+        //bad code because it is very coupled. I must use reflection
+        List<Integer> sortTypes = new ArrayList<>(3);
+        sortTypes.add(SortHelp.CRESCENT_ODER);
+        sortTypes.add(SortHelp.DESCRESCENT_ORDER);
+        sortTypes.add(SortHelp.RANDOM_ORDER);
+        sortTypes.add(SortHelp.NONE_ORDER);
 
-            for(Item item : bin.getItems()){
-                struturedAnswer = struturedAnswer.concat(item.getWeight().toString()+"  ");
+        GRASP grasp = new GRASP();
+//        Collections.shuffle(inserctionStrategysTypes);
+//        Collections.shuffle(sortTypes);
+
+        for(Integer inserctionStrategysType: inserctionStrategysTypes){
+            for(Integer sortType: sortTypes){
+
+                grasp.setNumberExecution(executionNumber)
+                        .setInserctionType(inserctionStrategysType)
+                        .setOrderType(sortType)
+                        .setCapacityBin(capacityBin)
+                        .setItems(items)
+                        .setAlfa(alfa)
+                        .generateStartSolution();
+
+
             }
 
-            struturedAnswer = struturedAnswer.concat("\n\n");
+
         }
 
-        return struturedAnswer;
+        grasp.executePertubation();
+        String answer = DesignerResponse.strutureBinsInString(grasp.getBestSolutionAfterPertubationBins());
+
+        answerTextArea.setText(answer);
+
+
+
+
 
     }
+
+
+
+
+
 
     private boolean alfaIsValid(float alfa) {
         return alfa>=0 && alfa<=1;

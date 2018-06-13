@@ -1,6 +1,6 @@
-package custom;
+package custom.sort_strategy;
 
-import Model.Item;
+import model.Item;
 
 import java.util.*;
 

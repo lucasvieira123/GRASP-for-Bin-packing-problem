@@ -1,7 +1,7 @@
-package custom;
+package custom.inserction_strategy;
 
-import Model.Bin;
-import Model.Item;
+import model.Bin;
+import model.Item;
 
 import java.util.List;
 

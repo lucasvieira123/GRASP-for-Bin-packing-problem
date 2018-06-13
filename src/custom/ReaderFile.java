@@ -1,7 +1,7 @@
 package custom;
 
 
-import Model.Item;
+import model.Item;
 
 import java.util.List;
 

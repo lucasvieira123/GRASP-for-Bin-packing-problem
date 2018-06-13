@@ -1,4 +1,4 @@
-package Model;
+package model;
 
 public class Item {
     static private Integer _id = 0;
