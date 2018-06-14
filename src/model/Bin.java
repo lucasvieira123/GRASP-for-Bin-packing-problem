@@ -68,6 +68,12 @@ public class Bin {
         }
     }
 
+    public void removeItem(Item item){
+        restCapacity = restCapacity+item.getWeight();
+        filledCapacity = filledCapacity - item.getWeight();
+        items.remove(item);
+    }
+
     static public void restart_Id(){
         _id = 0;
     }

@@ -228,6 +228,7 @@ public class GRASP {
                 Integer answerAboutAttemptAddItem = randomBin2.tryAddItem(randomItem);
 
                 if(answerAboutAttemptAddItem == Bin.ITEM_ADDED){
+                    randomBin1.removeItem(randomItem);
                     if(randomBin1.getFilledCapacity() == 0){
                         startSolutionBins.remove(randomBin1);
                     }
