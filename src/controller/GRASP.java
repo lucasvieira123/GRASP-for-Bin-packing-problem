@@ -9,17 +9,12 @@ import custom.inserction_strategy.InserctionStrategy;
 import custom.sort_strategy.SortHelp;
 import custom.utils.DesignerResponse;
 
-import javax.swing.table.TableRowSorter;
-import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.io.PrintWriter;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Timer;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class GRASP {
@@ -35,7 +30,7 @@ public class GRASP {
     private int numberItem;
     private int numberOfGreedy;
     private int numberOfRamdom;
-    private int numberExecution;
+    private double timeExecution;
     private int sortType;
     private int inserctionType;
     private PrintWriter out;
@@ -201,8 +196,8 @@ public class GRASP {
 
     }
 
-    public GRASP setNumberExecution(int numberExecution) {
-        this.numberExecution = numberExecution;
+    public GRASP setTimeExecution(double timeExecution) {
+        this.timeExecution = timeExecution;
         return this;
     }
 
@@ -219,7 +214,12 @@ public class GRASP {
 
         bestSolutionAfterPertubationBins = new ArrayList<>();
 
-        for(int numberExecution = 0; numberExecution < this.numberExecution; numberExecution++){
+        double timeExecutionInNanos = timeExecution*60000000000D;
+        double endTimeInNanos;
+        double duration;
+        double startTimeInMillis = System.nanoTime();
+
+       do{
             Bin randomBin1 = getRandomBin();
             Bin randomBin2 = getRandomBin();
 
@@ -234,7 +234,12 @@ public class GRASP {
                     }
                 }
             }
-        }
+
+            endTimeInNanos = System.nanoTime();
+            duration = endTimeInNanos - startTimeInMillis;
+
+
+        }while (duration <= timeExecutionInNanos);
 
         bestSolutionAfterPertubationBins = startSolutionBins;
 

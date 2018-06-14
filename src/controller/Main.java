@@ -57,7 +57,7 @@ public class Main extends Application {
     private RadioButton bestFitSortRadioBt;
 
     @FXML
-    private TextField numberExecutionTxtField;
+    private TextField timeExecutionTxtField;
 
     @FXML
     private TextArea answerTextArea;
@@ -86,7 +86,7 @@ public class Main extends Application {
     private float capacityBin;
     private List<Item> items;
     private Float alfa;
-    private int executionNumber;
+    private double timeExecution;
     private String valueDefaultAlfa = "1.0";
     private String valueDefaultNumberExecution = "1";
 
@@ -130,7 +130,7 @@ public class Main extends Application {
         chooseBtn.setOnAction(event -> showChooserAndSetPathAction());
 
         alfaTxtField.setOnMouseClicked(clearField(alfaTxtField));
-        numberExecutionTxtField.setOnMouseClicked(clearField(numberExecutionTxtField));
+        timeExecutionTxtField.setOnMouseClicked(clearField(timeExecutionTxtField));
 
         automaticCheckBox.selectedProperty().addListener((observable, oldValue, newValue) -> {
             if(automaticCheckBoxSelected(newValue)){
@@ -155,13 +155,13 @@ public class Main extends Application {
 
 
 
-            if(numberExecutionTxtField.getText().isEmpty()){
-                numberExecutionTxtField.setText(valueDefaultNumberExecution);
+            if(timeExecutionTxtField.getText().isEmpty()){
+                timeExecutionTxtField.setText(valueDefaultNumberExecution);
             }
 
-            float executionNumberInFloat = Float.valueOf(numberExecutionTxtField.getText());
-            executionNumber = buildNatureValue(executionNumberInFloat);
-            numberExecutionTxtField.setText(String.valueOf(executionNumber));
+            timeExecution  = Double.valueOf(timeExecutionTxtField.getText());
+
+
 
             // restrictions to fields
             if(!alfaIsValid(alfa)){
@@ -279,7 +279,7 @@ public class Main extends Application {
     private void startManualGrasp() {
         GRASP grasp = new GRASP();
 
-        grasp.setNumberExecution(executionNumber)
+        grasp.setTimeExecution(timeExecution)
                 .setInserctionType(selectedInsertionType)
                 .setOrderType(selectedSortType)
                 .setCapacityBin(capacityBin)
@@ -311,7 +311,7 @@ public class Main extends Application {
         for(Integer inserctionStrategysType: inserctionStrategysTypes){
             for(Integer sortType: sortTypes){
 
-                grasp.setNumberExecution(executionNumber)
+                grasp.setTimeExecution(timeExecution)
                         .setInserctionType(inserctionStrategysType)
                         .setOrderType(sortType)
                         .setCapacityBin(capacityBin)
