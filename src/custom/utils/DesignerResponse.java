@@ -15,7 +15,12 @@ public class DesignerResponse {
         }
 
         String struturedAnswer = "Count Bins: "+bins.size()+ "\n";
-        struturedAnswer = struturedAnswer.concat("totalRestCapacity = "+totalRestCapacity+"\n\n");
+        struturedAnswer =  struturedAnswer.concat("Initial Capacity = "+bins.get(0).getInitialCapacity()+"\n");
+        struturedAnswer = struturedAnswer.concat("Total Rest Capacity by Solution = "+totalRestCapacity+"\n");
+        struturedAnswer = struturedAnswer.concat("Filled Capacity by Bin:\n");
+        struturedAnswer = struturedAnswer.concat(DesignerResponse.structureFilledCapacitys(bins)+"\n");
+        struturedAnswer = struturedAnswer.concat("Rest Capacity by Bin:\n");
+        struturedAnswer = struturedAnswer.concat(DesignerResponse.structureRestCapacitys(bins)+"\n\n");
 
 
         for(Bin bin : bins){
@@ -29,6 +34,8 @@ public class DesignerResponse {
 
         return struturedAnswer+"\n\n";
     }
+
+
 
     public static String strutureBinInString(Bin bin){
         String struturedAnswer = "";
@@ -47,6 +54,21 @@ public class DesignerResponse {
     }
 
 
+    public static String structureRestCapacitys(List<Bin> bins) {
+        String restCapacitysInString = "";
+        for(Bin bin : bins){
+           restCapacitysInString = restCapacitysInString.concat(bin.getRestCapacity()+" ");
+        }
+        return restCapacitysInString;
+    }
 
+    private static String structureFilledCapacitys(List<Bin> bins) {
+        String filledCapacitysInString = "";
+        for(Bin bin : bins){
+            filledCapacitysInString = filledCapacitysInString.concat(bin.getFilledCapacity()+" ");
+        }
 
-}
+        return filledCapacitysInString;
+    }
+    }
+

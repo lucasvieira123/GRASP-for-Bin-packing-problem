@@ -305,8 +305,6 @@ public class Main extends Application {
         sortTypes.add(SortHelp.NONE_ORDER);
 
         GRASP grasp = new GRASP();
-//        Collections.shuffle(inserctionStrategysTypes);
-//        Collections.shuffle(sortTypes);
 
         for(Integer inserctionStrategysType: inserctionStrategysTypes){
             for(Integer sortType: sortTypes){
@@ -324,10 +322,11 @@ public class Main extends Application {
 
 
         }
-
+        String answer = "<Start Solution>\n";
+        answer = answer.concat(DesignerResponse.strutureBinsInString(grasp.getBestStartSolutionBins()));
+        answer =  answer.concat("<Final Solution>\n");
         grasp.executePertubation();
-        String answer = DesignerResponse.strutureBinsInString(grasp.getBestSolutionAfterPertubationBins());
-
+        answer = answer.concat(DesignerResponse.strutureBinsInString(grasp.getBestSolutionAfterPertubationBins()));
         answerTextArea.setText(answer);
 
 
